@@ -1,0 +1,33 @@
+|----     Model Location      ----|
+/Users/jimmy/python/paper/models/N50000_5_10_4_[20, 30, 30, 20]/LR-K20_E50B50_Osgd_Lr0.005_L10.005L20.005.h5
+|----    Data Description     ----|
+N:50000 Noise_len:5 Numeric_len:10 Object_len:4 Object_nums:[20, 30, 30, 20]
+|----    Model Parameters     ----|
+Model:LR, K:20 Epoch:50 Batch_size:50 Optimizer:sgd Lr:0.005 L1:0.005 L2:0.005
+|----       Result Show       ----|
+In TrainSet F1 score:0.8172 Acc:0.8046 AUC:0.8909 Th_max:0.40
+In TestSet  F1 score:0.8221 Acc:0.8080 AUC:0.8895 
+
+
+|----     Model Location      ----|
+/Users/jimmy/python/paper/models/N50000_5_10_4_[20, 30, 30, 20]/FM-K20_E50B50_Osgd_Lr0.005_L10.005L20.005.h5
+|----    Data Description     ----|
+N:50000 Noise_len:5 Numeric_len:10 Object_len:4 Object_nums:[20, 30, 30, 20]
+|----    Model Parameters     ----|
+Model:FM, K:20 Epoch:50 Batch_size:50 Optimizer:sgd Lr:0.005 L1:0.005 L2:0.005
+|----       Result Show       ----|
+In TrainSet F1 score:0.9083 Acc:0.9076 AUC:0.9672 Th_max:0.50
+In TestSet  F1 score:0.9049 Acc:0.9033 AUC:0.9659 
+
+
+|----     Model Location      ----|
+/Users/jimmy/python/paper/models/N50000_5_10_4_[20, 30, 30, 20]/FFM-K20_E50B50_Osgd_Lr0.005_L10.005L20.005.h5
+|----    Data Description     ----|
+N:50000 Noise_len:5 Numeric_len:10 Object_len:4 Object_nums:[20, 30, 30, 20]
+|----    Model Parameters     ----|
+Model:FFM, K:20 Epoch:50 Batch_size:50 Optimizer:sgd Lr:0.005 L1:0.005 L2:0.005
+|----       Result Show       ----|
+In TrainSet F1 score:0.8755 Acc:0.8720 AUC:0.9435 Th_max:0.44
+In TestSet  F1 score:0.8742 Acc:0.8696 AUC:0.9423 
+
+
