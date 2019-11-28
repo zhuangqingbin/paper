@@ -18,17 +18,24 @@ import matplotlib.pyplot as plt
 import tensorflow as tf
 def common_model(params,data,train=True,fig=True):
     model = Sequential()
-    if params.type == 'FM':
+    if params.type == 'FM-R':
         model.add(FMLayer(1, params.k, activation='sigmoid',
                         kernel_regularizer=regularizers.l1_l2(l1=params.l1_reg_rate,l2=params.l2_reg_rate)))
-    elif params.type == 'FFM':
+    elif params.type == 'FM':
+        model.add(FMLayer(1, params.k, activation='sigmoid'))
+
+    elif params.type == 'FFM-R':
         model.add(FFMLayer(1,data.f,params.k,data.feature2field,activation='sigmoid',
                         kernel_regularizer=regularizers.l1_l2(l1=params.l1_reg_rate,l2=params.l2_reg_rate)))
-    elif params.type == 'FFM-None':
+    elif params.type == 'FFM':
         model.add(FFMLayer(1,data.f,params.k,data.feature2field,activation='sigmoid'))
-    elif params.type == 'LR':
+
+    elif params.type == 'LR-R':
         model.add(Dense(1,activation='sigmoid',
                         kernel_regularizer=regularizers.l1_l2(l1=params.l1_reg_rate,l2=params.l2_reg_rate)))
+    elif params.type == 'LR':
+        model.add(Dense(1,activation='sigmoid'))
+
     else:
         return None
     

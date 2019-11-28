@@ -42,15 +42,6 @@ def generate_cat_data(n, seed, cat_n, cat_format):
     else:
         return None
 
-def t():
-    train,test = generate_data(n=20000, seed=1, means=[[0,0],[1,1]],
-                           sigmas=[[[1,0],[0,1]],[[1,0.5],[0.5,1]]],
-                           objects_n=[10,5], objects_format=['uniform','poisson'],
-                           format='logit', w_intercept=1, w_numeric=[0.1,0.2,0.3,1], w_cat=0.05,
-                           w_intercross_numeric=0.5, w_intercross_cat=0.05, w_intercross=0.01)
-    print('train data:\n',train.label.value_counts(normalize=True))
-    print('test data:\n',test.label.value_counts(normalize=True))
-
 def generate_data(n, seed, means, sigmas, objects_n, objects_format, noise_means, noise_sigmas,
                   format, w_intercept, w_numeric, w_cat,
                   w_intercross_numeric, w_intercross_cat, w_intercross):
@@ -132,7 +123,7 @@ def generate_data(n, seed, means, sigmas, objects_n, objects_format, noise_means
     return train, test
 
 
-def load_data(params):
+def load_data(params,save = True):
     if not os.listdir(params.data_dir()):
         # train_data,test_data = generate_data(n=params.n,noise_len = params.noise_len,numeric_len=params.numeric_len,object_len=params.object_len,object_nums=params.object_nums,seed=1994)
         train_data, test_data = generate_data(n = params.n, seed = 1994, means = params.numeric_means,
@@ -144,8 +135,11 @@ def load_data(params):
                            w_intercross_numeric = params.w_intercross_numeric,
                            w_intercross_cat = params.w_intercross_cat,
                            w_intercross = params.w_intercross)
-        train_data.to_pickle(f'{params.data_dir()}/train_data.pkl')
-        test_data.to_pickle(f'{params.data_dir()}/test_data.pkl')
+        if save:
+            train_data.to_pickle(f'{params.data_dir()}/train_data.pkl')
+            test_data.to_pickle(f'{params.data_dir()}/test_data.pkl')
+        else:
+            os.rmdir(params.data_dir())
     else:
         print('Load Old Data ......')
         train_data = pd.read_pickle(f'{params.data_dir()}/train_data.pkl')
