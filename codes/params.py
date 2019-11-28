@@ -24,15 +24,27 @@ import pandas as pd
 class Params(object):
     def __init__(self):
         # Data Parameters
-        self.n = 5000
-        self.noise_len = 5
-        self.numeric_len = 10
-        self.object_len = 4
-        self.object_nums = [10,10,10,10]
+        self.n = 20000
+        # self.numeric_means = [[10,-10,0],[100,30,-10,0.5]]
+        self.numeric_means = [[-1, -2, -3], [4, 3, -4, -3]]
+        self.numeric_sigmas = [[[1, 0, 0.5], [0, 1, 0],[0.5, 0, 1]],
+                               [[1,-0.3,0.8,0],[-0.3,1,-0.7,0.2],[0.8,-0.7,1,-0.5],[0,0.2,-0.5,1]]]
+        self.objects_n = [50, 30, 30]
+        self.objects_format = ['uniform', 'uniform', 'poisson']
+        self.noise_means = [[0, 0, 0]]
+        self.noise_sigmas = [[[1, 0.8, 0.8], [0.8, 1, 0.8], [0.8, 0.8, 1]]]
+
+        self.model_format = 'logit'
+        self.w_intercept = 1
+        self.w_numeric = [5, 2, -3, 4, 5, -4, 3]
+        self.w_cat = [0, 4]
+        self.w_intercross_numeric = [3, 4]
+        self.w_intercross_cat = [0,1]
+        self.w_intercross = [0,0.9]
         
         # Model Parameters
         self.type = 'FM' #LR/FM/FFM
-        self.k = 30
+        self.k = 10
         self.epochs = 20
         self.batch_size = 50
         self.optmizer = 'adm' #sgd/adagrad/RMSprop/adam
@@ -40,30 +52,33 @@ class Params(object):
         
         self.l1_reg_rate = 0.005
         self.l2_reg_rate = 0.005
-        
-        
+
+    def data_id(self):
+        # Data Identifier
+        return f'N{self.n}_{self.numeric_means}_{self.objects_n}_{self.objects_format}_{self.model_format}'
+
     def data_dir(self):
-        data_dir = f'{os.getcwd()}/data/N{self.n}_{self.noise_len}_{self.numeric_len}_{self.object_len}_{str(self.object_nums)}'
+        data_dir = f'{os.getcwd()}/data/{self.data_id()}'
         if not os.path.exists(data_dir):
             os.makedirs(data_dir)
         return data_dir
     
     def model_path(self):
-        model_dir = f'{os.getcwd()}/models/N{self.n}_{self.noise_len}_{self.numeric_len}_{self.object_len}_{str(self.object_nums)}'
+        model_dir = f'{os.getcwd()}/models/{self.data_id()}'
         if not os.path.exists(model_dir):
             os.makedirs(model_dir)
         model_path = f'{self.type}-K{self.k}_E{self.epochs}B{self.batch_size}_O{self.optmizer}_Lr{self.learning_rate}_L1{self.l1_reg_rate}L2{self.l2_reg_rate}.h5'
         return os.path.join(model_dir,model_path)
     
     def fig_dir(self):
-        fig_dir = f'{os.getcwd()}/figures/N{self.n}_{self.noise_len}_{self.numeric_len}_{self.object_len}_{str(self.object_nums)}'
+        fig_dir = f'{os.getcwd()}/figures/{self.data_id()}'
         if not os.path.exists(fig_dir):
             os.makedirs(fig_dir)
         fig_id = f'{self.type}-K{self.k}_E{self.epochs}B{self.batch_size}_O{self.optmizer}_Lr{self.learning_rate}_L1{self.l1_reg_rate}L2{self.l2_reg_rate}'
         return fig_dir,fig_id
     
     def record_dir(self):
-        model_dir = f'{os.getcwd()}/records/N{self.n}_{self.noise_len}_{self.numeric_len}_{self.object_len}_{str(self.object_nums)}'
+        model_dir = f'{os.getcwd()}/records/{self.data_id()}'
         if not os.path.exists(model_dir):
             os.makedirs(model_dir)
         return model_dir
@@ -72,10 +87,19 @@ class Params(object):
         format_str = '{:^50}\n'
         print('#'*50+'\n')
         print(format_str.format('Data Parameters'))
-        print(f'N:{self.n}, Noise_len:{self.noise_len}, Numeric_len:{self.numeric_len}, Object_len:{self.object_len}, Object_nums:{str(self.object_nums)}\n')
+        print(f'N:{self.n}, model_format:{self.model_format}\n',
+              f'Numeric_means:{self.numeric_means}\n',
+              f'Numeric_sigmas:{self.numeric_sigmas}\n',
+              f'Noise_means:{self.noise_means}\n',
+              f'Noise_sigmas:{self.noise_sigmas}\n',
+              f'objects_n:{self.objects_n}, objects_format:{self.objects_format}\n',
+              f'w_intercept:{self.w_intercept}, w_numeric:{self.w_numeric}, w_cat:{self.w_cat}\n',
+              f'w_intercross_numeric:{self.w_intercross_numeric}, ',
+              f'w_intercross_cat:{self.w_intercross_cat}, w_intercross:{self.w_intercross}\n')
         
         print(format_str.format('Model Parameters'))
-        print(f'Model:{self.type}, K:{self.k}, Epochs:{self.epochs}, Batch_size:{self.batch_size}, Optimizer:{self.optmizer}, Lr:{self.learning_rate}, L1:{self.l1_reg_rate}, L2:{self.l2_reg_rate}\n')
+        print(f'Model:{self.type}, K:{self.k}, Epochs:{self.epochs}, Batch_size:{self.batch_size} \n'
+              f'Optimizer:{self.optmizer}, Lr:{self.learning_rate}, L1:{self.l1_reg_rate}, L2:{self.l2_reg_rate}\n')
         print('#'*50+'\n')
 
    
@@ -87,13 +111,23 @@ def Record(params,performance):
     #with open(f'{os.getcwd()}/record/record.txt','a+') as f:
     with open(f'{params.record_dir()}/record.txt','a+') as f:
         f.write(format_str.format('Model Location'))
-        f.write(f'{params.model_path()}\n')
+        for item in re.sub('(.*?)/paper/', '', params.model_path()).split('/'):
+            f.write(f'{item}\n')
         
         f.write(format_str.format('Data Description'))
-        f.write(f'N:{params.n} Noise_len:{params.noise_len} Numeric_len:{params.numeric_len} Object_len:{params.object_len} Object_nums:{params.object_nums}\n')
+        f.write(f'N:{params.n}, model_format:{params.model_format} \n' +
+                f'Numeric_means:{params.numeric_means} \n' +
+                f'Numeric_sigmas:{params.numeric_sigmas} \n' +
+                f'Noise_means:{params.noise_means} \n' +
+                f'Noise_sigmas:{params.noise_sigmas} \n' +
+                f'objects_n:{params.objects_n}, objects_format:{params.objects_format} \n' +
+                f'w_intercept:{params.w_intercept}, w_numeric:{params.w_numeric}, w_cat:{params.w_cat} \n' +
+                f'w_intercross_numeric:{params.w_intercross_numeric}, ' +
+                f'w_intercross_cat:{params.w_intercross_cat}, w_intercross:{params.w_intercross} \n')
         
         f.write(format_str.format('Model Parameters'))
-        f.write(f'Model:{params.type}, K:{params.k} Epoch:{params.epochs} Batch_size:{params.batch_size} Optimizer:{params.optmizer} Lr:{params.learning_rate} L1:{params.l1_reg_rate} L2:{params.l2_reg_rate}\n')
+        f.write(f'Model:{params.type}, K:{params.k} Epoch:{params.epochs} Batch_size:{params.batch_size} \n' +
+                f'Optimizer:{params.optmizer} Lr:{params.learning_rate} L1:{params.l1_reg_rate} L2:{params.l2_reg_rate} ')
         
 
         f.write(format_str.format('Result Show'))
@@ -141,11 +175,11 @@ def record_to_csv(record_path,df_name):
     df_dict['model'] = re.findall('Model:(.*?),',content)
     df_dict['k'] = re.findall('K:(.*?) ',content)
     df_dict['epoch'] = re.findall('Epoch:(.*?) ',content)
-    df_dict['batch_size'] = re.findall('Batch_size:(.*?) ',content)
+    df_dict['batch_size'] = re.findall('Batch\_size:(.*?) ',content)
     df_dict['optimizer'] = re.findall('Optimizer:(.*?) ',content)
     df_dict['lr'] = re.findall('Lr:(.*?) ',content)
     df_dict['l1'] = re.findall('L1:(.*?) ',content)
-    df_dict['l2'] = re.findall('L2:(.*?)\n',content)
+    df_dict['l2'] = re.findall('L2:(.*?) ',content)
     
     f1 = re.findall('F1 score:(.*?) ',content)
     acc = re.findall('Acc:(.*?) ',content)

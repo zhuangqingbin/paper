@@ -26,7 +26,8 @@ class FFM(object):
         self.optmizer = params.optmizer
         
         dir_path = '%s/models/' % os.getcwd()
-        data_path = f'N{params.n}_{params.noise_len}_{params.numeric_len}_{params.object_len}_{str(params.object_nums)}/'
+        # data_path = f'N{params.n}_{params.noise_len}_{params.numeric_len}_{params.object_len}_{str(params.object_nums)}/'
+        data_path = params.data_id() +'/'
         name = f'O{params.optmizer}_E{params.epoch}_K{params.k}_Lr{params.learning_rate}_B{params.batch_size}_L1{params.l1_reg_rate}_L2{params.l2_reg_rate}'
         self.checkpoint_dir = dir_path+data_path+name+'_FFM'
         

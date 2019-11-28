@@ -17,19 +17,18 @@ from keras.layers import Dense
 import matplotlib.pyplot as plt
 import tensorflow as tf
 def common_model(params,data,train=True,fig=True):
-    # 写法一
-#    inp = Input(shape=(92,))
-#    x = FMLayer(1, 100,activation='sigmoid')(inp)
-#    model = Model(inputs=inp, outputs=x)
-    
-    # 写法二
     model = Sequential()
     if params.type == 'FM':
-        model.add(FMLayer(1, 100,activation='sigmoid',kernel_regularizer=regularizers.l1_l2(l1=params.l1_reg_rate,l2=params.l2_reg_rate)))
+        model.add(FMLayer(1, params.k, activation='sigmoid',
+                        kernel_regularizer=regularizers.l1_l2(l1=params.l1_reg_rate,l2=params.l2_reg_rate)))
     elif params.type == 'FFM':
-        model.add(FFMLayer(1,data.f,params.k,data.feature2field,activation='sigmoid',kernel_regularizer=regularizers.l1_l2(l1=params.l1_reg_rate,l2=params.l2_reg_rate)))
+        model.add(FFMLayer(1,data.f,params.k,data.feature2field,activation='sigmoid',
+                        kernel_regularizer=regularizers.l1_l2(l1=params.l1_reg_rate,l2=params.l2_reg_rate)))
+    elif params.type == 'FFM-None':
+        model.add(FFMLayer(1,data.f,params.k,data.feature2field,activation='sigmoid'))
     elif params.type == 'LR':
-        model.add(Dense(1,activation='sigmoid',kernel_regularizer=regularizers.l1_l2(l1=params.l1_reg_rate,l2=params.l2_reg_rate)))
+        model.add(Dense(1,activation='sigmoid',
+                        kernel_regularizer=regularizers.l1_l2(l1=params.l1_reg_rate,l2=params.l2_reg_rate)))
     else:
         return None
     

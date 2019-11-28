@@ -20,10 +20,10 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 ########################################################
 params = Params()
 train_data,test_data = load_data(params)
-data = Data(train_data,test_data,'label') 
+data = Data(train_data,test_data,'label')
 
 
-def main(params,data):
+def main(params, data):
     params.show()
     model = common_model(params,data)
     model.save(params.model_path())
@@ -39,10 +39,10 @@ def main(params,data):
 
 
 def run():
-    for t in ['LR','FM','FFM']:
+    for t in ['LR','FM','FFM','FFM-None']:
         #for o in ['sgd','adagrad','RMSprop','adam']:
         for o in ['adam']:
-            for lr in [0.001,0.005,0.01,0.05]:
+            for lr in [0.005]:
                 params.type = t
                 params.optmizer = o
                 params.learning_rate = lr

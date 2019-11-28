@@ -9,6 +9,12 @@ import numpy as np
 import pandas as pd
 
 class Data(object):
+    """
+    输入含有label的训练集和测试集，
+    提取数据集的f、feature2field，
+    将分类变量独热，
+    tr_X、tr_Y为训练集数据和标签，te_X、te_Y为测试集数据和标签（数组格式）
+    """
     def __init__(self,train_data,test_data,label):
         self.tr_Y = train_data[label].values.reshape(-1,1)
         self.te_Y = test_data[label].values.reshape(-1,1)
