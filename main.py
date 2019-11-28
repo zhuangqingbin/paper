@@ -39,7 +39,7 @@ def main(params, data):
 
 
 def run():
-    for t in ['LR','FM','FFM','FFM-None']:
+    for t in ['LR','LR-R','FM','FM-R','FFM','FFM-R']:
         #for o in ['sgd','adagrad','RMSprop','adam']:
         for o in ['adam']:
             for lr in [0.005]:

@@ -123,10 +123,10 @@ def generate_data(n, seed, means, sigmas, objects_n, objects_format, noise_means
     return train, test
 
 
-def load_data(params,save = True):
+def load_data(params, seed = 1994, save = True):
     if not os.listdir(params.data_dir()):
         # train_data,test_data = generate_data(n=params.n,noise_len = params.noise_len,numeric_len=params.numeric_len,object_len=params.object_len,object_nums=params.object_nums,seed=1994)
-        train_data, test_data = generate_data(n = params.n, seed = 1994, means = params.numeric_means,
+        train_data, test_data = generate_data(n = params.n, seed = seed, means = params.numeric_means,
                            sigmas = params.numeric_sigmas,
                            objects_n = params.objects_n, objects_format = params.objects_format,
                            noise_means = params.noise_means, noise_sigmas = params.noise_sigmas,
