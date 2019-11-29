@@ -119,14 +119,14 @@ def generate_data(n, seed, means, sigmas, objects_n, objects_format, noise_means
     data = pd.concat((numeric_data,noise_data,cat_data),axis=1)
     data.columns = [f'col_{str(i)}' for i in range(data.shape[1])]
     data['label'] = y.apply(lambda x:np.random.binomial(1,x,1)[0])
-    train, test, _, _ = train_test_split(data, data.label, test_size = .25, random_state=seed)
+    train, test, _, _ = train_test_split(data, data.label, test_size = .2, random_state=seed)
     return train, test
 
 
-def load_data(params, seed = 1994, save = True):
+def load_data(params, save = True):
     if not os.listdir(params.data_dir()):
         # train_data,test_data = generate_data(n=params.n,noise_len = params.noise_len,numeric_len=params.numeric_len,object_len=params.object_len,object_nums=params.object_nums,seed=1994)
-        train_data, test_data = generate_data(n = params.n, seed = seed, means = params.numeric_means,
+        train_data, test_data = generate_data(n = params.n, seed = params.seed, means = params.numeric_means,
                            sigmas = params.numeric_sigmas,
                            objects_n = params.objects_n, objects_format = params.objects_format,
                            noise_means = params.noise_means, noise_sigmas = params.noise_sigmas,

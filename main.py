@@ -12,42 +12,52 @@ from DataProcess import Data
 from DataGenerate import load_data
 from Models import common_model,get_model
 from params import Params,performance_show,Record,record_to_csv,print_tf
-import os 
+import os
+import pandas as pd
+import numpy as np
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 ########################################################
 ############## Data Load
 ########################################################
-params = Params()
-train_data,test_data = load_data(params)
-data = Data(train_data,test_data,'label')
 
+def get_params(target = 'simulate'):
+    params = Params(target = target)
+    if target == 'simulate':
+        train_data, test_data = load_data(params)
+        data = Data(train_data, test_data, 'label')
+    else:
+        train_data = pd.read_pickle('train_data.pkl')
+        test_data = pd.read_pickle('test_data.pkl')
+        data = Data(train_data, test_data, 'label')
+    return params,data
 
 def main(params, data):
     params.show()
-    model = common_model(params,data)
+    model = common_model(params, data)
     model.save(params.model_path())
-    #print(model.summary())
-    performance = performance_show(data,model)
-    print('\n'+performance)
-    
-    Record(params,performance)
+    performance = performance_show(data, model)
+    print('\n' + performance)
+
+    Record(params, performance)
     return model
+
 #model = main(params,data)
 
 
 
 
-def run():
-    for t in ['LR','LR-R','FM','FM-R','FFM','FFM-R']:
-        #for o in ['sgd','adagrad','RMSprop','adam']:
-        for o in ['adam']:
-            for lr in [0.005]:
+def run(target='simulate'):
+    params, data = get_params(target)
+    for lr in [0.005, 0.001]:
+        for o in ['sgd','adagrad','RMSprop','adam']:
+        #for o in ['adam']:
+            for t in ['LR', 'LR-R', 'FM', 'FM-R']:
                 params.type = t
                 params.optmizer = o
                 params.learning_rate = lr
                 model = main(params,data)
-run()             
+run(target='e')
 #model = main(params,data)
 
 #if __name__ == '__main__':

@@ -40,11 +40,13 @@ train_data,test_data = load_data(params,save = False)
 
 print('Train Dataset Shape:{shape}, float:{float}, object:{object}, int:{int}.'.format(**summary(train_data)))
 print('Test Dataset Shape:{shape}, float:{float}, object:{object}, int:{int}.'.format(**summary(test_data)))
+
+print('\n')
 print('Train Dataset Distribution:')
 print(train_data.label.value_counts(normalize=True))
 print('Test Dataset Distribution:')
 print(test_data.label.value_counts(normalize=True))
-
+print('\n')
 data = Data(train_data,test_data,'label')
 print('One-hot Train Dataset Shape:')
 print(data.tr_X.shape)
@@ -57,4 +59,4 @@ logreg.fit(data.tr_X, data.tr_Y)
 
 prepro = logreg.predict_proba(data.te_X)
 acc = logreg.score(data.te_X,data.te_Y)
-print('\n\nLR acc :', acc)
+print('\nLR acc :', acc)

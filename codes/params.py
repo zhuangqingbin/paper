@@ -22,45 +22,51 @@ import pandas as pd
 
 
 class Params(object):
-    def __init__(self):
+    def __init__(self, target = 'simulate'):
+        self.target = target
+
         # Data Parameters
-        self.n = 20000
+        self.n = 10000
+        self.seed = 122
         # self.numeric_means = [[10,-10,0],[100,30,-10,0.5]]
-        self.numeric_means = [[0, 1, -1], [-2, 0, 2], [2, -3, 2, -1]]
+        self.numeric_means = [[0, 1, -1], [-2, 0, 2], [2, 3, -2, -1]]
         self.numeric_sigmas = [[[1, 0, 0.5], [0, 1, 0], [0.5, 0, 1]],
                                [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
                                [[1,-0.3,0.8,0],[-0.3,1,-0.7,0.2],[0.8,-0.7,1,-0.5],[0,0.2,-0.5,1]]]
 
-        self.objects_n = [50, 30, 30]
+        self.objects_n = [20, 30, 30]
         self.objects_format = ['uniform', 'uniform', 'poisson']
 
         self.noise_means = [[0, 0, 0], [-1, 0, 1],[-10, 15, 10, -20]]
         self.noise_sigmas = [[[1, 0.8, 0.8], [0.8, 1, 0.8], [0.8, 0.8, 1]],
                              [[1, 0.2, 0.2], [0.2, 1, 0.2], [0.2, 0.2, 1]],
-                             [[1,0,0,0],[0,1,0,0],[0,0,1,0],[0,0,0,1]]]
+                             [[1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1]]]
 
         self.model_format = 'logit'
         self.w_intercept = 1
         self.w_numeric = [5, 2, -3, 4, -6, -4, 3, 1, 6, 3]
-        self.w_cat = [0, 4]
+        self.w_cat = [0, 0.01]
         self.w_intercross_numeric = [0, 1]
         self.w_intercross_cat = [0,0.02]
         self.w_intercross = [0,0.01]
         
         # Model Parameters
         self.type = 'FM' #LR/FM/FFM
-        self.k = 10
-        self.epochs = 10
-        self.batch_size = 50
+        self.k = 20
+        self.epochs = 50
+        self.batch_size = 100
         self.optmizer = 'adm' #sgd/adagrad/RMSprop/adam
-        self.learning_rate = 0.005
+        self.learning_rate = 0.01
         
         self.l1_reg_rate = 0.001
         self.l2_reg_rate = 0.001
 
     def data_id(self):
         # Data Identifier
-        return f'N{self.n}_{self.numeric_means}_{self.objects_n}_{self.objects_format}_{self.model_format}'
+        if self.target == 'simulate':
+            return f'N{self.n}_S{self.seed}_{self.numeric_means}_{self.objects_n}_{self.objects_format}_{self.model_format}'
+        else:
+            return 'empirical'
 
     def data_dir(self):
         data_dir = f'{os.getcwd()}/data/{self.data_id()}'
@@ -70,13 +76,16 @@ class Params(object):
     
     def model_path(self):
         model_dir = f'{os.getcwd()}/models/{self.data_id()}'
+
         if not os.path.exists(model_dir):
             os.makedirs(model_dir)
         model_path = f'{self.type}-K{self.k}_E{self.epochs}B{self.batch_size}_O{self.optmizer}_Lr{self.learning_rate}_L1{self.l1_reg_rate}L2{self.l2_reg_rate}.h5'
         return os.path.join(model_dir,model_path)
+
     
     def fig_dir(self):
         fig_dir = f'{os.getcwd()}/figures/{self.data_id()}'
+
         if not os.path.exists(fig_dir):
             os.makedirs(fig_dir)
         fig_id = f'{self.type}-K{self.k}_E{self.epochs}B{self.batch_size}_O{self.optmizer}_Lr{self.learning_rate}_L1{self.l1_reg_rate}L2{self.l2_reg_rate}'
@@ -84,15 +93,21 @@ class Params(object):
     
     def record_dir(self):
         model_dir = f'{os.getcwd()}/records/{self.data_id()}'
+
         if not os.path.exists(model_dir):
             os.makedirs(model_dir)
         return model_dir
+
     
     def show(self):
+        """
+        :return: 按照type打印数据和模型的信息
+        """
         format_str = '{:^50}\n'
         print('#'*50+'\n')
-        print(format_str.format('Data Parameters'))
-        print(f'N:{self.n}, model_format:{self.model_format}\n',
+        if self.target == 'simulate':
+            print(format_str.format('Data Parameters'))
+            print(f'N:{self.n}, model_format:{self.model_format}\n',
               f'Numeric_means:{self.numeric_means}\n',
               f'Numeric_sigmas:{self.numeric_sigmas}\n',
               f'Noise_means:{self.noise_means}\n',
@@ -101,7 +116,10 @@ class Params(object):
               f'w_intercept:{self.w_intercept}, w_numeric:{self.w_numeric}, w_cat:{self.w_cat}\n',
               f'w_intercross_numeric:{self.w_intercross_numeric}, ',
               f'w_intercross_cat:{self.w_intercross_cat}, w_intercross:{self.w_intercross}\n')
-        
+        else:
+            print(format_str.format('Data Info'))
+            print('Demonstration using real data.')
+
         print(format_str.format('Model Parameters'))
         print(f'Model:{self.type}, K:{self.k}, Epochs:{self.epochs}, Batch_size:{self.batch_size} \n'
               f'Optimizer:{self.optmizer}, Lr:{self.learning_rate}, L1:{self.l1_reg_rate}, L2:{self.l2_reg_rate}\n')
@@ -109,8 +127,8 @@ class Params(object):
 
    
 def Record(params,performance):
-    if not os.path.exists(f'{os.getcwd()}/record'):
-        os.makedirs(f'{os.getcwd()}/record')
+    if not os.path.exists(f'{os.getcwd()}/records'):
+        os.makedirs(f'{os.getcwd()}/records')
         
     format_str = '|----{:^25}----|\n'
     #with open(f'{os.getcwd()}/record/record.txt','a+') as f:
@@ -118,9 +136,10 @@ def Record(params,performance):
         f.write(format_str.format('Model Location'))
         for item in re.sub('(.*?)/paper/', '', params.model_path()).split('/'):
             f.write(f'{item}\n')
-        
+
         f.write(format_str.format('Data Description'))
-        f.write(f'N:{params.n}, model_format:{params.model_format} \n' +
+        if params.target == 'simulate':
+            f.write(f'N:{params.n}, model_format:{params.model_format} \n' +
                 f'Numeric_means:{params.numeric_means} \n' +
                 f'Numeric_sigmas:{params.numeric_sigmas} \n' +
                 f'Noise_means:{params.noise_means} \n' +
@@ -129,7 +148,9 @@ def Record(params,performance):
                 f'w_intercept:{params.w_intercept}, w_numeric:{params.w_numeric}, w_cat:{params.w_cat} \n' +
                 f'w_intercross_numeric:{params.w_intercross_numeric}, ' +
                 f'w_intercross_cat:{params.w_intercross_cat}, w_intercross:{params.w_intercross} \n')
-        
+        else:
+            f.write('Demonstration using real data. \n')
+
         f.write(format_str.format('Model Parameters'))
         f.write(f'Model:{params.type}, K:{params.k} Epoch:{params.epochs} Batch_size:{params.batch_size} \n' +
                 f'Optimizer:{params.optmizer} Lr:{params.learning_rate} L1:{params.l1_reg_rate} L2:{params.l2_reg_rate} ')
