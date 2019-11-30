@@ -82,17 +82,22 @@ def generate_data(n, seed, means, sigmas, objects_n, objects_format, noise_means
     if format == 'logit':
         phi = 0
         # 数值型变量
-        for i, w in enumerate(w_numeric):
-            phi += w * numeric_data.iloc[:,i]
+        np.random.seed(seed)
+        w_numeric_normal = np.random.normal(w_numeric[0], w_numeric[1], numeric_data.shape[1])
+        w_numeric_normal = np.where(abs(w_numeric_normal) < w_numeric[2], 0, w_numeric_normal)
+        phi += np.sum(numeric_data.mul(w_numeric_normal), axis=1)
         # 分类变量
         np.random.seed(seed)
         w_cat_normal = np.random.normal(w_cat[0], w_cat[1], one_hot_data.shape[1])
+        w_cat_normal = np.where(abs(w_cat_normal) < w_cat[2], 0, w_cat_normal)
         phi += np.sum(one_hot_data.mul(w_cat_normal), axis=1)
 
         # 交叉项
         ## 数值型交叉项
         w_intercross_numeric_n = np.random.normal(w_intercross_numeric[0], w_intercross_numeric[1],
                                         int(numeric_data.shape[1]*(numeric_data.shape[1]-1)/2))
+        w_intercross_numeric_n = np.where(abs(w_intercross_numeric_n) < w_intercross_numeric[2],
+                                          0, w_intercross_numeric_n)
         index = 0
         for i in range(numeric_data.shape[1]):
             for j in range(i + 1, numeric_data.shape[1]):
@@ -101,6 +106,8 @@ def generate_data(n, seed, means, sigmas, objects_n, objects_format, noise_means
         ## 离散型交叉项
         w_intercross_cat_n = np.random.normal(w_intercross_cat[0], w_intercross_cat[1],
                                         int(one_hot_data.shape[1]*(one_hot_data.shape[1]-1)/2))
+        w_intercross_cat_n = np.where(abs(w_intercross_cat_n) < w_intercross_cat[2],
+                                          0, w_intercross_cat_n)
         index = 0
         for i in range(one_hot_data.shape[1]):
             for j in range(i + 1, one_hot_data.shape[1]):
@@ -110,6 +117,8 @@ def generate_data(n, seed, means, sigmas, objects_n, objects_format, noise_means
         ## 数值-离散型交叉项
         w_intercross_n = np.random.normal(w_intercross[0], w_intercross[1],
                                         int(numeric_data.shape[1]*one_hot_data.shape[1]))
+        w_intercross_n = np.where(abs(w_intercross_n) < w_intercross[2],
+                                      0, w_intercross_n)
         index = 0
         for i in range(numeric_data.shape[1]):
             for j in range(one_hot_data.shape[1]):

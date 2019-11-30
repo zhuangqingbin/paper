@@ -57,7 +57,7 @@ def run(target='simulate'):
                 params.optmizer = o
                 params.learning_rate = lr
                 model = main(params,data)
-run(target='e')
+run()
 #model = main(params,data)
 
 #if __name__ == '__main__':

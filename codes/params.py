@@ -26,37 +26,37 @@ class Params(object):
         self.target = target
 
         # Data Parameters
-        self.n = 10000
-        self.seed = 122
-        # self.numeric_means = [[10,-10,0],[100,30,-10,0.5]]
-        self.numeric_means = [[0, 1, -1], [-2, 0, 2], [2, 3, -2, -1]]
+        self.n = 20000
+        self.seed = 1994
+        self.numeric_means = [[1, -1, 0], [1, 0, -1], [1, -1, -1, 1]]
         self.numeric_sigmas = [[[1, 0, 0.5], [0, 1, 0], [0.5, 0, 1]],
                                [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
                                [[1,-0.3,0.8,0],[-0.3,1,-0.7,0.2],[0.8,-0.7,1,-0.5],[0,0.2,-0.5,1]]]
 
-        self.objects_n = [20, 30, 30]
-        self.objects_format = ['uniform', 'uniform', 'poisson']
+        self.objects_n = [10, 15, 20, 10, 15, 20]
+        self.objects_format = ['uniform', 'uniform', 'uniform', 'poisson', 'poisson', 'poisson']
 
-        self.noise_means = [[0, 0, 0], [-1, 0, 1],[-10, 15, 10, -20]]
+        self.noise_means = [[2, -2, 2], [1, -2, -3], [2, -2, -3, 3]]
         self.noise_sigmas = [[[1, 0.8, 0.8], [0.8, 1, 0.8], [0.8, 0.8, 1]],
                              [[1, 0.2, 0.2], [0.2, 1, 0.2], [0.2, 0.2, 1]],
                              [[1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1]]]
 
         self.model_format = 'logit'
-        self.w_intercept = 1
-        self.w_numeric = [5, 2, -3, 4, -6, -4, 3, 1, 6, 3]
-        self.w_cat = [0, 0.01]
-        self.w_intercross_numeric = [0, 1]
-        self.w_intercross_cat = [0,0.02]
-        self.w_intercross = [0,0.01]
+        self.w_intercept = -1
+        # w都服从正态分布,[均值，标准差，置零区间]
+        self.w_numeric = [0, 1, 0.1]
+        self.w_cat = [0, 4, 0.5]
+        self.w_intercross_numeric = [0, 5, 1]
+        self.w_intercross_cat = [0, 5, 1]
+        self.w_intercross = [0, 5, 1.5]
         
         # Model Parameters
         self.type = 'FM' #LR/FM/FFM
         self.k = 20
-        self.epochs = 50
+        self.epochs = 100
         self.batch_size = 100
         self.optmizer = 'adm' #sgd/adagrad/RMSprop/adam
-        self.learning_rate = 0.01
+        self.learning_rate = 0.001
         
         self.l1_reg_rate = 0.001
         self.l2_reg_rate = 0.001
