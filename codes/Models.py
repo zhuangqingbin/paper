@@ -37,7 +37,7 @@ def common_model(params,data,train=True,fig=True):
         model.add(Dense(1,activation='sigmoid'))
 
     else:
-        return None
+        raise ValueError('Type is illegal.')
     
     if train:
         if params.optmizer == 'sgd':
@@ -49,7 +49,7 @@ def common_model(params,data,train=True,fig=True):
         elif params.optmizer == 'adam':
             opt = adam(lr = params.learning_rate)
         else:
-            return 
+            raise ValueError('Optmizer is illegal.')
         
         model.compile(loss = 'binary_crossentropy',
                       optimizer = opt,metrics=['accuracy'])
@@ -236,7 +236,5 @@ class FFMLayer(Layer):
     def compute_output_shape(self, input_shape):
         assert input_shape and len(input_shape) == 2
         return input_shape[0], self.output_dim
-
-
 
 

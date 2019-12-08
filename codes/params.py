@@ -20,46 +20,78 @@ import numpy as np
 import re
 import pandas as pd
 
+param_dict ={
+    'target':'simulate',
+    'n': 20000,
+    'seed': 1994,
+    'numeric_means': [[1, -1, 0], [1, 0, -1], [1, -1, -1, 1]],
+    'numeric_sigmas': [[[1, 0, 0.5], [0, 1, 0], [0.5, 0, 1]],
+                      [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
+                      [[1,-0.3,0.8,0],[-0.3,1,-0.7,0.2],[0.8,-0.7,1,-0.5],[0,0.2,-0.5,1]]],
+
+    'objects_n': [20, 30, 40, 20, 30, 40],
+    'objects_format': ['uniform', 'uniform', 'uniform', 'poisson', 'poisson', 'poisson'],
+
+    'noise_means': [[5, -5, 0], [4, -2, -5], [6, -4, -5, 3]],
+    'noise_sigmas': [[[1, 0.8, 0.8], [0.8, 1, 0.8], [0.8, 0.8, 1]],
+                    [[1, 0.2, 0.2], [0.2, 1, 0.2], [0.2, 0.2, 1]],
+                    [[1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1]]],
+
+    'model_format': 'logit',
+    'w_intercept': -1,
+    'w_numeric': [0, 1, 0.1],
+    'w_cat': [0, 4, 0.5],
+    'w_intercross_numeric': [0, 5, 1],
+    'w_intercross_cat':[0, 5, 1],
+    'w_intercross': [0, 5, 1.5],
+
+    'type': 'FM',
+    'k': 20,
+    'epochs': 100,
+    'batch_size': 100,
+    'optmizer': 'adam',
+    'learning_rate': 0.001,
+    'l1_reg_rate': 0.001,
+    'l2_reg_rate': 0.001
+}
+
+
 
 class Params(object):
-    def __init__(self, target = 'simulate'):
-        self.target = target
+    def __init__(self, param_dict):
+        self.target = param_dict['target']
 
         # Data Parameters
-        self.n = 20000
-        self.seed = 1994
-        self.numeric_means = [[1, -1, 0], [1, 0, -1], [1, -1, -1, 1]]
-        self.numeric_sigmas = [[[1, 0, 0.5], [0, 1, 0], [0.5, 0, 1]],
-                               [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
-                               [[1,-0.3,0.8,0],[-0.3,1,-0.7,0.2],[0.8,-0.7,1,-0.5],[0,0.2,-0.5,1]]]
+        self.n = param_dict['n']
+        self.seed = param_dict['seed']
+        self.numeric_means = param_dict['numeric_means']
+        self.numeric_sigmas = param_dict['numeric_sigmas']
 
-        self.objects_n = [10, 15, 20, 10, 15, 20]
-        self.objects_format = ['uniform', 'uniform', 'uniform', 'poisson', 'poisson', 'poisson']
+        self.objects_n = param_dict['objects_n']
+        self.objects_format = param_dict['objects_format']
 
-        self.noise_means = [[2, -2, 2], [1, -2, -3], [2, -2, -3, 3]]
-        self.noise_sigmas = [[[1, 0.8, 0.8], [0.8, 1, 0.8], [0.8, 0.8, 1]],
-                             [[1, 0.2, 0.2], [0.2, 1, 0.2], [0.2, 0.2, 1]],
-                             [[1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1]]]
+        self.noise_means = param_dict['noise_means']
+        self.noise_sigmas = param_dict['noise_sigmas']
 
-        self.model_format = 'logit'
-        self.w_intercept = -1
+        self.model_format = param_dict['model_format']
+        self.w_intercept = param_dict['w_intercept']
         # w都服从正态分布,[均值，标准差，置零区间]
-        self.w_numeric = [0, 1, 0.1]
-        self.w_cat = [0, 4, 0.5]
-        self.w_intercross_numeric = [0, 5, 1]
-        self.w_intercross_cat = [0, 5, 1]
-        self.w_intercross = [0, 5, 1.5]
+        self.w_numeric = param_dict['w_numeric']
+        self.w_cat = param_dict['w_cat']
+        self.w_intercross_numeric = param_dict['w_intercross_numeric']
+        self.w_intercross_cat = param_dict['w_intercross_cat']
+        self.w_intercross = param_dict['w_intercross']
         
         # Model Parameters
-        self.type = 'FM' #LR/FM/FFM
-        self.k = 20
-        self.epochs = 100
-        self.batch_size = 100
-        self.optmizer = 'adm' #sgd/adagrad/RMSprop/adam
-        self.learning_rate = 0.001
+        self.type = param_dict['type']
+        self.k = param_dict['k']
+        self.epochs = param_dict['epochs']
+        self.batch_size = param_dict['batch_size']
+        self.optmizer = param_dict['optmizer']   #sgd/adagrad/RMSprop/adam
+        self.learning_rate = param_dict['learning_rate']
         
-        self.l1_reg_rate = 0.001
-        self.l2_reg_rate = 0.001
+        self.l1_reg_rate = param_dict['l1_reg_rate']
+        self.l2_reg_rate = param_dict['l2_reg_rate']
 
     def data_id(self):
         # Data Identifier
