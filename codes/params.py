@@ -24,27 +24,19 @@ param_dict ={
     'target':'simulate',
     'n': 20000,
     'seed': 1994,
-    'numeric_means': [[1, -1, 0], [1, 0, -1], [1, -1, -1, 1]],
-    'numeric_sigmas': [[[1, 0, 0.5], [0, 1, 0], [0.5, 0, 1]],
-                      [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
-                      [[1,-0.3,0.8,0],[-0.3,1,-0.7,0.2],[0.8,-0.7,1,-0.5],[0,0.2,-0.5,1]]],
-
-    'objects_n': [20, 30, 40, 20, 30, 40],
-    'objects_format': ['uniform', 'uniform', 'uniform', 'poisson', 'poisson', 'poisson'],
-
-    'noise_means': [[5, -5, 0], [4, -2, -5], [6, -4, -5, 3]],
-    'noise_sigmas': [[[1, 0.8, 0.8], [0.8, 1, 0.8], [0.8, 0.8, 1]],
-                    [[1, 0.2, 0.2], [0.2, 1, 0.2], [0.2, 0.2, 1]],
-                    [[1,0,0,0], [0,1,0,0], [0,0,1,0], [0,0,0,1]]],
-
-    'model_format': 'logit',
-    'w_intercept': -1,
-    'w_numeric': [0, 1, 0.1],
-    'w_cat': [0, 4, 0.5],
-    'w_intercross_numeric': [0, 5, 1],
-    'w_intercross_cat':[0, 5, 1],
-    'w_intercross': [0, 5, 1.5],
-
+    # data parameters
+    'numeric_n': 20,
+    'm':4,
+    'alpha1':5,
+    'cat_n':4,
+    'alpha2':1,
+    'alpha3':1,
+    'alpha4':1,
+    'alpha5':1,
+    'noise_n':5,
+    'alpha6':1,
+    'model_format':'logit',
+    # model parameters
     'type': 'FM',
     'k': 20,
     'epochs': 100,
@@ -64,23 +56,22 @@ class Params(object):
         # Data Parameters
         self.n = param_dict['n']
         self.seed = param_dict['seed']
-        self.numeric_means = param_dict['numeric_means']
-        self.numeric_sigmas = param_dict['numeric_sigmas']
 
-        self.objects_n = param_dict['objects_n']
-        self.objects_format = param_dict['objects_format']
+        self.numeric_n = param_dict['numeric_n']
 
-        self.noise_means = param_dict['noise_means']
-        self.noise_sigmas = param_dict['noise_sigmas']
+        self.m = param_dict['m']
+        self.alpha1 = param_dict['alpha1']
 
+        self.cat_n = param_dict['cat_n']
+        self.alpha2 = param_dict['alpha2']
+
+        self.alpha3 = param_dict['alpha3']
+        self.alpha4 = param_dict['alpha4']
+
+        self.alpha5 = param_dict['alpha5']
+        self.noise_n = param_dict['noise_n']
+        self.alpha6 = param_dict['alpha6']
         self.model_format = param_dict['model_format']
-        self.w_intercept = param_dict['w_intercept']
-        # w都服从正态分布,[均值，标准差，置零区间]
-        self.w_numeric = param_dict['w_numeric']
-        self.w_cat = param_dict['w_cat']
-        self.w_intercross_numeric = param_dict['w_intercross_numeric']
-        self.w_intercross_cat = param_dict['w_intercross_cat']
-        self.w_intercross = param_dict['w_intercross']
         
         # Model Parameters
         self.type = param_dict['type']
@@ -96,9 +87,11 @@ class Params(object):
     def data_id(self):
         # Data Identifier
         if self.target == 'simulate':
-            return f'N{self.n}_S{self.seed}_{self.numeric_means}_{self.objects_n}_{self.objects_format}_{self.model_format}'
+            return f'N{self.n}_S{self.seed}_Cn{self.numeric_n}_m{self.m}_a1-{self.alpha1}_' \
+                f'On{self.cat_n}_a2-{self.alpha2}_a3-{self.alpha3}_a4-{self.alpha4}_' \
+                f'a5-{self.alpha5}_Nn{self.noise_n}_a6-{self.alpha6}'
         else:
-            return 'empirical'
+            return self.target
 
     def data_dir(self):
         data_dir = f'{os.getcwd()}/data/{self.data_id()}'
@@ -130,7 +123,21 @@ class Params(object):
             os.makedirs(model_dir)
         return model_dir
 
-    
+    def data_info(self):
+        info = f'N:{self.n}, model_format:{self.model_format}, Seed:{self.seed} \n' + \
+        f'Numeric nums:{self.numeric_n}, ' + \
+        f'Numeric groups:{self.m}, ' + \
+        f'Numeric coef:{self.alpha1} \n' + \
+        f'Object nums:{self.cat_n}, ' + \
+        f'Object coef:{self.alpha2} \n' + \
+        f'Numeric intercept:{self.alpha3}, ' + \
+        f'Object intercept:{self.alpha4}, ' + \
+        f'Both intercept:{self.alpha5} \n' + \
+        f'Noise nums:{self.noise_n}, ' + \
+        f'Noise coef:{self.alpha6} \n'
+        return info
+
+
     def show(self):
         """
         :return: 按照type打印数据和模型的信息
@@ -139,15 +146,7 @@ class Params(object):
         print('#'*50+'\n')
         if self.target == 'simulate':
             print(format_str.format('Data Parameters'))
-            print(f'N:{self.n}, model_format:{self.model_format}\n',
-              f'Numeric_means:{self.numeric_means}\n',
-              f'Numeric_sigmas:{self.numeric_sigmas}\n',
-              f'Noise_means:{self.noise_means}\n',
-              f'Noise_sigmas:{self.noise_sigmas}\n',
-              f'objects_n:{self.objects_n}, objects_format:{self.objects_format}\n',
-              f'w_intercept:{self.w_intercept}, w_numeric:{self.w_numeric}, w_cat:{self.w_cat}\n',
-              f'w_intercross_numeric:{self.w_intercross_numeric}, ',
-              f'w_intercross_cat:{self.w_intercross_cat}, w_intercross:{self.w_intercross}\n')
+            print(self.data_info())
         else:
             print(format_str.format('Data Info'))
             print('Demonstration using real data.')
@@ -166,20 +165,12 @@ def Record(params,performance):
     #with open(f'{os.getcwd()}/record/record.txt','a+') as f:
     with open(f'{params.record_dir()}/record.txt','a+') as f:
         f.write(format_str.format('Model Location'))
-        for item in re.sub('(.*?)/paper/', '', params.model_path()).split('/'):
-            f.write(f'{item}\n')
+        for i,item in enumerate(re.sub('(.*?)/paper/', '', params.model_path()).split('/'),1):
+            f.write(f'Folder level{i}:{item}\n')
 
         f.write(format_str.format('Data Description'))
         if params.target == 'simulate':
-            f.write(f'N:{params.n}, model_format:{params.model_format} \n' +
-                f'Numeric_means:{params.numeric_means} \n' +
-                f'Numeric_sigmas:{params.numeric_sigmas} \n' +
-                f'Noise_means:{params.noise_means} \n' +
-                f'Noise_sigmas:{params.noise_sigmas} \n' +
-                f'objects_n:{params.objects_n}, objects_format:{params.objects_format} \n' +
-                f'w_intercept:{params.w_intercept}, w_numeric:{params.w_numeric}, w_cat:{params.w_cat} \n' +
-                f'w_intercross_numeric:{params.w_intercross_numeric}, ' +
-                f'w_intercross_cat:{params.w_intercross_cat}, w_intercross:{params.w_intercross} \n')
+            f.write(params.data_info())
         else:
             f.write('Demonstration using real data. \n')
 
@@ -192,7 +183,7 @@ def Record(params,performance):
         
         f.write(performance)
         
-    record_to_csv(f'{params.record_dir()}/record.txt',f'{params.record_dir()}/record.csv')
+    record_to_csv(params)
     
   
         
@@ -224,8 +215,10 @@ def performance_show(data,model):
     return row1+'\n'+row2+'\n\n\n'
 
 
-def record_to_csv(record_path,df_name):
-    with open(record_path,'r') as f:
+
+def record_to_csv(params):
+
+    with open(f'{params.record_dir()}/record.txt','r') as f:
         content = f.read()
     
     df_dict = {}
@@ -250,7 +243,20 @@ def record_to_csv(record_path,df_name):
     df_dict['test_auc'] = auc[1::2]
     
     df = pd.DataFrame(df_dict)
-    df.to_csv(df_name,index=False)
+
+
+    if params.target == 'simulate':
+        data_path = f'{params.data_dir()}'
+    else:
+        data_path = f'{os.getcwd()}/empirical/' + params.target
+    train_data = pd.read_pickle(os.path.join(data_path,'train_data.pkl'))
+    test_data = pd.read_pickle(os.path.join(data_path, 'test_data.pkl'))
+    tr_1per = (train_data.label == 1).mean().round(4)
+    te_1per = (test_data.label == 1).mean().round(4)
+    df['tr_1per'] = tr_1per
+    df['te_1per'] = te_1per
+
+    df.to_csv(f'{params.record_dir()}/record.csv',index=False)
 
 def print_tf(obj,get=False):
     init_g = tf.global_variables_initializer()

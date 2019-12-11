@@ -9,7 +9,7 @@ import sys,os
 sys.path.append('%s/codes' % os.getcwd())
 sys.path.append('%s/data' % os.getcwd())
 from DataProcess import Data
-from DataGenerate import load_data
+from DataGenerateNew import load_data
 from Models import common_model,get_model
 from params import param_dict,Params
 from params import performance_show,Record,record_to_csv,print_tf
@@ -38,14 +38,16 @@ def run(param_dict):
         train_data, test_data = load_data(params)
         data = Data(train_data, test_data, 'label')
     else:
-        train_data = pd.read_pickle('train_data.pkl')
-        test_data = pd.read_pickle('test_data.pkl')
+        data_path = f'{os.getcwd()}/empirical/' + params.target
+        train_data = pd.read_pickle(os.path.join(data_path,'train_data.pkl'))
+        test_data = pd.read_pickle(os.path.join(data_path,'test_data.pkl'))
         data = Data(train_data, test_data, 'label')
     main(params,data)
 
+
 for seed in range(1990,2020):
-    for optmizer in ['sgd','adagrad','RMSprop','adam']:
-        for k in [30,40]:
+    for k,l1,l2 in zip([30,50,100],[0.01,0.001,0.001],[0.01,0.001,0.001]):
+        for optmizer in ['sgd', 'adagrad', 'RMSprop', 'adam']:
             for type in ['LR','LR-R','FM','FM-R']:
                 param_dict['seed'] = seed
                 param_dict['optmizer'] = optmizer
@@ -55,6 +57,18 @@ for seed in range(1990,2020):
 
 
 
+# for target in ['em'+str(i) for i in range(1990,2010)]:
+#     for optmizer in ['sgd','adagrad','RMSprop','adam']:
+#         for k in [30,40,50,100]:
+#             for lr in [0.001,0.05]:
+#                 for type in ['LR','LR-R','FM','FM-R']:
+#                     param_dict['target'] = target
+#                     param_dict['optmizer'] = optmizer
+#                     param_dict['k'] = k
+#                     param_dict['type'] = type
+#                     run(param_dict=param_dict)
+
+################
 
 def get_params(target = 'simulate'):
     params = Params(target = target)

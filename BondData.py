@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
-import re
+import re,os
 
 #########################
 ##### 处理违约债券数据
@@ -139,6 +139,37 @@ def process(data):
             tmp_data[_col] = tmp_data[_col].apply(lambda x: float(re.sub(',', '', x)))
     return tmp_data
 
+def process_finance(data):
+    df = data.copy()
+    cols = list(df.columns)
+    fin_cols = cols[cols.index('总资产(亿元)'):]
+    df['总资产报酬率'] = df['总资产报酬率(%)']
+    df['净利润率'] = df['净利润(亿元)']/df['主营业务收入(亿元)']
+    df['总资产收益率'] = df['净利润(亿元)']/df['总资产(亿元)']
+    df['净资产收益率'] = df['净利润(亿元)']/(df['总资产(亿元)']-df['总债务(亿元)'])
+    df['净资产报酬率'] = df['净利润(亿元)'] / df['净资产(亿元)']
+
+    df['流动比'] = df['流动比率'] #
+    df['速动比'] = df['速动比率'] #
+    df['资产负债'] = df['资产负债率']
+    df['产权比率'] = df['总债务(亿元)']/(df['总资产(亿元)']-df['总债务(亿元)'])
+    df['短期债务比率'] = df['短期债务/总债务']
+    df['货币资金短债比'] = df['货币资金/短期债务']
+    df['货币资金总债比'] = df['货币资金/总债务']
+    df['现金债务比'] = df['经营活动现金流(亿元)']/df['带息债务(亿元)']
+
+    df['存货周转'] = df['存货周转率'] #
+    df['总资产周转率'] = df['主营业务利润(亿元)']/df['总资产(亿元)']
+    df['主营业务收入增长率'] = df['主营业务收入增长率(%)']
+
+    df['经营现金流量比'] = df['经营活动现金流(亿元)']/df['主营业务收入(亿元)']
+    df['投资现金流量比'] = df['投资活动现金流(亿元)'] / df['主营业务收入(亿元)']
+    df['筹资现金流量比'] = df['筹资活动现金流(亿元)'] / df['主营业务收入(亿元)']
+
+    df = df.drop(fin_cols,axis=1).rename({'流动比':'流动比率','速动比':'速动比率',
+                                          '存货周转':'存货周转率'},axis=1)
+    return df
+
 def print_object(default,normal):
     for _col in default.columns:
         if default[_col].dtype == object:
@@ -146,15 +177,34 @@ def print_object(default,normal):
                   f'Default Data:{default[_col].nunique()}.')
 
 
-d = process(default_bond)
-n = process(normal_bond)
+d = process(default_bond).pipe(process_finance)
+n = process(normal_bond).pipe(process_finance)
 d['label'] = 1
 n['label'] = 0
-data = pd.concat([d,n])
-data = data.iloc[np.random.choice(range(len(data)),len(data),replace=False)].reset_index(drop=True)
+n = n[n.industry_y.isin(d.industry_y.unique())]
 
+data = pd.concat([d, n])
+data = data.iloc[np.random.choice(range(len(data)),
+                                      len(data), replace=False)].reset_index(drop=True)
 train_data, test_data, _, _ = train_test_split(data, data.label,
-                                               test_size = .2, random_state=1994)
+                                                test_size=.2, random_state=1994)
 train_data.to_pickle('train_data.pkl')
 test_data.to_pickle('test_data.pkl')
+
+def combind_data(d,n,seed):
+    np.random.seed(seed)
+    n1 = n.iloc[np.random.choice(range(len(n)), 2000, replace=False)]
+    data = pd.concat([d, n1])
+    data = data.iloc[np.random.choice(range(len(data)),
+                                      len(data), replace=False)].reset_index(drop=True)
+    train_data, test_data, _, _ = train_test_split(data, data.label,
+                                                   test_size=.2, random_state=1994)
+    data_path = f'{os.getcwd()}/empirical/em{seed}'
+    if not os.path.exists(data_path):
+        os.makedirs(data_path)
+    train_data.to_pickle(os.path.join(data_path,'train_data.pkl'))
+    test_data.to_pickle(os.path.join(data_path,'test_data.pkl'))
+
+for seed in range(1990,2010):
+    combind_data(d,n,seed)
 
