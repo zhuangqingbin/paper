@@ -2,7 +2,7 @@ import os,time
 import pandas as pd
 import numpy as np
 
-RecordDir = 'records1'
+RecordDir = 'records_si1'
 
 
 csv_path_list = []
